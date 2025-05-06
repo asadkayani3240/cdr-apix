@@ -1,4 +1,5 @@
 ﻿using CdrApix.Data;
+using CdrApix.DTOs;
 using CdrApix.Models;
 using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
@@ -89,13 +90,13 @@ namespace CdrApix.Controllers
             return Ok(new { averageCallsPerDay = average });
         }
 
-        // Returns total call cost grouped by currency.
+        // Returns total call cost grouped by currency using DTO.
         [HttpGet("total-cost-by-currency")]
-        public async Task<IActionResult> GetTotalCostByCurrency()
+        public async Task<ActionResult<IEnumerable<CostByCurrencyDto>>> GetTotalCostByCurrency()
         {
             var totals = await _context.CdrRecords
                 .GroupBy(c => c.Currency)
-                .Select(g => new
+                .Select(g => new CostByCurrencyDto
                 {
                     Currency = g.Key,
                     TotalCost = g.Sum(c => c.Cost)
@@ -105,13 +106,13 @@ namespace CdrApix.Controllers
             return Ok(totals);
         }
 
-        // Lists the top N callers who made the most calls.
+        // Lists the top N callers who made the most calls using DTO.
         [HttpGet("top-callers")]
-        public async Task<IActionResult> GetTopCallers([FromQuery] int n = 5)
+        public async Task<ActionResult<IEnumerable<TopCallerDto>>> GetTopCallers([FromQuery] int n = 5)
         {
             var topCallers = await _context.CdrRecords
                 .GroupBy(c => c.CallerId)
-                .Select(g => new
+                .Select(g => new TopCallerDto
                 {
                     CallerId = g.Key,
                     CallCount = g.Count()
@@ -123,13 +124,13 @@ namespace CdrApix.Controllers
             return Ok(topCallers);
         }
 
-        // Provides daily summaries: total calls, duration, and cost per date.
+        // Provides daily summaries: total calls, duration, and cost per date using DTO.
         [HttpGet("daily-summary")]
-        public async Task<IActionResult> GetDailySummary()
+        public async Task<ActionResult<IEnumerable<CallSummaryDto>>> GetDailySummary()
         {
             var summary = await _context.CdrRecords
                 .GroupBy(c => c.CallDate.Date)
-                .Select(g => new
+                .Select(g => new CallSummaryDto
                 {
                     Date = g.Key,
                     TotalCalls = g.Count(),
