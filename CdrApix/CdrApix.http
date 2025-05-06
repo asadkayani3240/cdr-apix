@@ -1,0 +1,6 @@
+@CdrApix_HostAddress = http://localhost:5133
+
+GET {{CdrApix_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
