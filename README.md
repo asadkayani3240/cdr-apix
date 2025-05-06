@@ -33,7 +33,7 @@ CdrApix/
 
 ---
 
-## 📊 Insight Endpoints
+##  Insight Endpoints
 To test endpoints, launch the application and navigate to Swagger UI at `https://localhost:{your-port}/swagger`, where you can try requests like `GET /api/cdr/average-cost` and others interactively.
 
 | Endpoint                          | Route                                         | Description                                        |
@@ -51,7 +51,7 @@ To test endpoints, launch the application and navigate to Swagger UI at `https:/
 
 ---
 
-## 🧪 Features
+##  Features
 
 - Accepts CDRs via CSV  
 - Entity validation & EF Core integration  
@@ -61,7 +61,7 @@ To test endpoints, launch the application and navigate to Swagger UI at `https:/
 
 ---
 
-## 🔧 Setup (Local)
+##  Setup (Local)
 
 ```bash
 git clone https://github.com/asadkayani3240/cdr-apix.git
@@ -72,7 +72,7 @@ dotnet build
 
 ---
 
-## 💾 Configure the Database
+##  Configure the Database
 
 Make sure your connection string is set in `appsettings.json` under `"ConnectionStrings"`:
 
@@ -84,7 +84,7 @@ Make sure your connection string is set in `appsettings.json` under `"Connection
 
 ---
 
-## 🧱 Run EF Core Migrations
+##  Run EF Core Migrations
 
 If you're setting up the project for the first time, run the following to apply migrations and create the database schema:
 
@@ -100,7 +100,7 @@ dotnet ef migrations add InitialCreate
 
 ---
 
-## 🚀 Run the Application
+##  Run the Application
 
 ```bash
 dotnet run
@@ -108,7 +108,7 @@ dotnet run
 
 Visit the Swagger UI at `https://localhost:{your-port}/swagger` to test the API.
 
-> ℹ️ The port number may vary based on your `launchSettings.json` configuration.
+>  The port number may vary based on your `launchSettings.json` configuration.
 
 ---
  
