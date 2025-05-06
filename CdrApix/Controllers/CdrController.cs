@@ -1,6 +1,7 @@
 ﻿using CdrApix.Data;
 using CdrApix.DTOs;
 using CdrApix.Models;
+using CdrApix.Services;
 using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,13 +14,14 @@ namespace CdrApix.Controllers
     public class CdrController : ControllerBase
     {
         private readonly CdrDbContext _context;
+        private readonly CdrInsightsService _insightsService;
 
-        public CdrController(CdrDbContext context)
+        public CdrController(CdrDbContext context, CdrInsightsService insightsService)
         {
             _context = context;
+            _insightsService = insightsService;
         }
 
-        // Uploads and imports CDR records from a CSV file into the database.
         [HttpPost("upload")]
         public async Task<IActionResult> Upload(IFormFile file)
         {
@@ -39,134 +41,68 @@ namespace CdrApix.Controllers
             return Ok($"{records.Count} records uploaded successfully.");
         }
 
-        // Returns the average call cost from all records.
         [HttpGet("average-cost")]
         public async Task<ActionResult<decimal>> GetAverageCost()
         {
-            return await _context.CdrRecords.AverageAsync(r => r.Cost);
+            return await _insightsService.GetAverageCostAsync();
         }
 
-        // Retrieves the call record with the highest cost.
         [HttpGet("max-cost")]
-        public async Task<IActionResult> GetMaxCostCall()
+        public async Task<ActionResult<CdrRecord>> GetMaxCostCall()
         {
-            var maxCostCall = await _context.CdrRecords
-                .OrderByDescending(c => c.Cost)
-                .FirstOrDefaultAsync();
-
-            if (maxCostCall == null)
-                return NotFound("No records found.");
-
-            return Ok(maxCostCall);
+            var result = await _insightsService.GetMaxCostCallAsync();
+            return result != null ? Ok(result) : NotFound();
         }
 
-        // Retrieves the call record with the longest duration.
         [HttpGet("longest-call")]
-        public async Task<IActionResult> GetLongestCall()
+        public async Task<ActionResult<CdrRecord>> GetLongestCall()
         {
-            var longestCall = await _context.CdrRecords
-                .OrderByDescending(c => c.Duration)
-                .FirstOrDefaultAsync();
-
-            if (longestCall == null)
-                return NotFound("No records found.");
-
-            return Ok(longestCall);
+            var result = await _insightsService.GetLongestCallAsync();
+            return result != null ? Ok(result) : NotFound();
         }
 
-        // Calculates the average number of calls made per day.
         [HttpGet("average-calls-per-day")]
-        public async Task<IActionResult> GetAverageCallsPerDay()
+        public async Task<ActionResult<object>> GetAverageCallsPerDay()
         {
-            var grouped = await _context.CdrRecords
-                .GroupBy(c => c.CallDate.Date)
-                .Select(g => g.Count())
-                .ToListAsync();
-
-            if (!grouped.Any())
-                return NotFound("No data to calculate.");
-
-            double average = grouped.Average();
-            return Ok(new { averageCallsPerDay = average });
+            var result = await _insightsService.GetAverageCallsPerDayAsync();
+            return Ok(new { averageCallsPerDay = result });
         }
 
-        // Returns total call cost grouped by currency using DTO.
         [HttpGet("total-cost-by-currency")]
         public async Task<ActionResult<IEnumerable<CostByCurrencyDto>>> GetTotalCostByCurrency()
         {
-            var totals = await _context.CdrRecords
-                .GroupBy(c => c.Currency)
-                .Select(g => new CostByCurrencyDto
-                {
-                    Currency = g.Key,
-                    TotalCost = g.Sum(c => c.Cost)
-                })
-                .ToListAsync();
-
-            return Ok(totals);
+            return Ok(await _insightsService.GetTotalCostByCurrencyAsync());
         }
 
-        // Lists the top N callers who made the most calls using DTO.
         [HttpGet("top-callers")]
         public async Task<ActionResult<IEnumerable<TopCallerDto>>> GetTopCallers([FromQuery] int n = 5)
         {
-            var topCallers = await _context.CdrRecords
-                .GroupBy(c => c.CallerId)
-                .Select(g => new TopCallerDto
-                {
-                    CallerId = g.Key,
-                    CallCount = g.Count()
-                })
-                .OrderByDescending(x => x.CallCount)
-                .Take(n)
-                .ToListAsync();
-
-            return Ok(topCallers);
+            return Ok(await _insightsService.GetTopCallersAsync(n));
         }
 
-        // Provides daily summaries: total calls, duration, and cost per date using DTO.
         [HttpGet("daily-summary")]
         public async Task<ActionResult<IEnumerable<CallSummaryDto>>> GetDailySummary()
         {
-            var summary = await _context.CdrRecords
-                .GroupBy(c => c.CallDate.Date)
-                .Select(g => new CallSummaryDto
-                {
-                    Date = g.Key,
-                    TotalCalls = g.Count(),
-                    TotalDuration = g.Sum(x => x.Duration),
-                    TotalCost = g.Sum(x => x.Cost)
-                })
-                .OrderBy(x => x.Date)
-                .ToListAsync();
-
-            return Ok(summary);
+            return Ok(await _insightsService.GetDailySummaryAsync());
         }
 
-        // Returns the number of calls made within a date range.
         [HttpGet("count")]
-        public async Task<IActionResult> GetCallCountInRange([FromQuery] DateTime start, [FromQuery] DateTime end)
+        public async Task<ActionResult<object>> GetCallCountInRange([FromQuery] DateTime start, [FromQuery] DateTime end)
         {
             if (start > end)
                 return BadRequest("Start date must be earlier than end date.");
 
-            var count = await _context.CdrRecords
-                .CountAsync(c => c.CallDate.Date >= start.Date && c.CallDate.Date <= end.Date);
-
+            var count = await _insightsService.GetCallCountInRangeAsync(start, end);
             return Ok(new { start, end, count });
         }
 
-        // Calculates total call duration for a specific recipient.
         [HttpGet("total-duration")]
-        public async Task<IActionResult> GetTotalDurationByRecipient([FromQuery] string recipient)
+        public async Task<ActionResult<object>> GetTotalDurationByRecipient([FromQuery] string recipient)
         {
             if (string.IsNullOrWhiteSpace(recipient))
                 return BadRequest("Recipient is required.");
 
-            var totalDuration = await _context.CdrRecords
-                .Where(c => c.Recipient == recipient)
-                .SumAsync(c => c.Duration);
-
+            var totalDuration = await _insightsService.GetTotalDurationByRecipientAsync(recipient);
             return Ok(new { recipient, totalDuration });
         }
     }
