@@ -13,6 +13,8 @@ It supports CSV upload, validation, and storage into a SQL Server database via E
 ---
 
 ## 📁 Project Structure
+
+```text
 CdrApix/
 ├── Controllers/
 │   └── CdrController.cs         # Handles file uploads
