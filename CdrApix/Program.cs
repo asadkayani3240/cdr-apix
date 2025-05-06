@@ -12,7 +12,7 @@ builder.Services.AddDbContext<CdrDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ✅ Add this before builder.Build()
-builder.Services.AddScoped<CdrInsightsService>();
+builder.Services.AddScoped<ICdrInsightsService, CdrInsightsService>();
 
 var app = builder.Build();
 
