@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdrApix", "CdrApix\CdrApix.csproj", "{33B4B6A9-906F-4865-AC14-BEA808D41442}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33B4B6A9-906F-4865-AC14-BEA808D41442}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33B4B6A9-906F-4865-AC14-BEA808D41442}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33B4B6A9-906F-4865-AC14-BEA808D41442}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33B4B6A9-906F-4865-AC14-BEA808D41442}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1CDCDC78-B6A5-45C9-8538-837091091598}
+	EndGlobalSection
+EndGlobal
